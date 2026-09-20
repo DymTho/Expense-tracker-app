@@ -1,30 +1,62 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:expense_tracker/main.dart';
+import 'package:expense_tracker/models/expense.dart';
+import 'package:expense_tracker/theme/theme_controller.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App shows the empty state and can open the add-expense sheet',
+      (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final themeController = ThemeController();
+    await themeController.load();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      ExpenseTrackerApp(themeController: themeController),
+    );
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.text('No expenses yet'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.add_circle_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Expense'), findsOneWidget);
+    expect(find.text('Save Expense'), findsOneWidget);
+  });
+
+  testWidgets('Deleting the last expense refreshes the screen (NOK amounts)',
+      (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({
+      'expenses': jsonEncode([
+        Expense(
+          title: 'Lunch',
+          amount: 129.5,
+          date: DateTime(2026, 9, 17),
+          category: Category.food,
+        ).toJson(),
+      ]),
+    });
+    final themeController = ThemeController();
+    await themeController.load();
+
+    await tester.pumpWidget(
+      ExpenseTrackerApp(themeController: themeController),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Lunch'), findsOneWidget);
+    expect(find.textContaining('kr'), findsWidgets);
+    expect(find.textContaining('\$'), findsNothing);
+
+    await tester.drag(find.text('Lunch'), const Offset(-800, 0));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Lunch'), findsNothing);
+    expect(find.text('No expenses yet'), findsOneWidget);
   });
 }

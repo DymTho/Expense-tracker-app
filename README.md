@@ -1,17 +1,19 @@
-# expense_tracker
+# Expense Tracker
 
-A new Flutter project.
+A Flutter app for tracking personal expenses, built for the NTNU Mobile Applications course (Assignment #2).
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Add expenses through a modal bottom sheet (title, amount, date, category) with input validation.
+- View expenses as an animated list and as a category bar chart.
+- Swipe to delete an expense, with an "Undo" option.
+- Data persists on the device across app restarts (`shared_preferences`).
+- Light/dark theming with rounded corners, shadows and smooth transition animations.
+- Responsive layout: chart and list stack vertically on narrow screens and sit side by side on wide/landscape screens.
 
-A few resources to get you started if this is your first Flutter project:
+## Getting started
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```
