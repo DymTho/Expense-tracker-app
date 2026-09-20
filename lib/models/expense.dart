@@ -6,8 +6,10 @@ const uuid = Uuid();
 final formatter = DateFormat.yMMMd();
 final _moneyFormatter = NumberFormat.currency(locale: 'nb_NO', symbol: 'kr');
 
+/// Formats an amount as Norwegian kroner, e.g. `1 234,50 kr`.
 String formatMoney(double amount) => _moneyFormatter.format(amount);
 
+/// Spending categories, used by the add-expense form, the list and the chart.
 enum Category { food, transport, leisure, work, shopping }
 
 const categoryIcons = {
@@ -34,7 +36,10 @@ const categoryColors = {
   Category.shopping: Color(0xFFFFD54F),
 };
 
+/// A single expense. This is the app's data model.
 class Expense {
+  /// A new expense gets a random unique [id] unless one is passed in
+  /// (which happens when an expense is loaded from storage).
   Expense({
     required this.title,
     required this.amount,
@@ -51,6 +56,7 @@ class Expense {
 
   String get formattedDate => formatter.format(date);
 
+  /// Converts the expense to a JSON-friendly map so it can be saved as text.
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,
@@ -59,6 +65,8 @@ class Expense {
         'category': category.name,
       };
 
+  /// Rebuilds an expense from the map produced by [toJson].
+  /// Falls back to [Category.leisure] if the saved category is unknown.
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
         id: json['id'] as String,
         title: json['title'] as String,
@@ -71,9 +79,12 @@ class Expense {
       );
 }
 
+/// All expenses that belong to one [Category]. The chart draws one bar
+/// per bucket, sized by [totalExpenses].
 class ExpenseBucket {
   const ExpenseBucket({required this.category, required this.expenses});
 
+  /// Picks the expenses of [category] out of [allExpenses].
   ExpenseBucket.forCategory(List<Expense> allExpenses, this.category)
       : expenses =
             allExpenses.where((expense) => expense.category == category).toList();

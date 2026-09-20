@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/expense.dart';
 
+/// The "New Expense" form shown in the modal bottom sheet. It does not store
+/// anything itself: a valid expense is handed to the parent via [onAddExpense].
 class NewExpense extends StatefulWidget {
   const NewExpense({super.key, required this.onAddExpense});
 
@@ -24,6 +26,7 @@ class _NewExpenseState extends State<NewExpense> {
     super.dispose();
   }
 
+  /// Opens the date picker. Future dates are not allowed.
   Future<void> _presentDatePicker() async {
     final now = DateTime.now();
     final pickedDate = await showDatePicker(
@@ -55,7 +58,11 @@ class _NewExpenseState extends State<NewExpense> {
     );
   }
 
+  /// Validates the input. If title, amount (> 0) and date are OK, creates the
+  /// expense, passes it to the parent and closes the sheet; otherwise shows
+  /// the "Invalid input" dialog.
   void _submitExpenseData() {
+    // Accept a decimal comma too (Norwegian keyboards).
     final amount = double.tryParse(_amountController.text.replaceAll(',', '.'));
     final amountIsInvalid = amount == null || amount <= 0;
 

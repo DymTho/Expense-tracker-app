@@ -9,6 +9,8 @@ import 'expenses_list/expenses_list.dart';
 import 'new_expense.dart';
 import 'settings_screen.dart';
 
+/// The main screen. It owns the list of expenses (the app's state) and shows
+/// the chart and the list. Adding, deleting and saving all go through here.
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
 
@@ -17,6 +19,8 @@ class Expenses extends StatefulWidget {
 }
 
 class _ExpensesState extends State<Expenses> {
+  /// Lets us call insertItem/removeItem on the AnimatedList to play its
+  /// enter/exit animations.
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
   final List<Expense> _registeredExpenses = [];
   bool _isLoading = true;
@@ -27,6 +31,7 @@ class _ExpensesState extends State<Expenses> {
     _loadExpenses();
   }
 
+  /// Loads saved expenses once when the screen starts.
   Future<void> _loadExpenses() async {
     final expenses = await ExpenseStorage.loadExpenses();
     setState(() {
@@ -35,6 +40,7 @@ class _ExpensesState extends State<Expenses> {
     });
   }
 
+  /// Opens the "New Expense" form as a modal bottom sheet.
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
       context: context,
@@ -47,6 +53,7 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
+  /// Opens the theme settings screen with a custom fade + slide transition.
   void _openSettings() {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -73,6 +80,8 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
+  /// Adds a new expense at the top, animates it into the list and saves.
+  /// Passed to the form as a callback.
   void _addExpense(Expense expense) {
     setState(() {
       _registeredExpenses.insert(0, expense);
@@ -84,10 +93,12 @@ class _ExpensesState extends State<Expenses> {
     ExpenseStorage.saveExpenses(_registeredExpenses);
   }
 
+  /// Deletes an expense (after a swipe) and offers an Undo in a SnackBar.
   void _removeExpense(Expense expense) {
     final index = _registeredExpenses.indexOf(expense);
     if (index == -1) return;
 
+    // Remember the index so Undo can put the expense back in the same place.
     _registeredExpenses.removeAt(index);
     _listKey.currentState?.removeItem(
       index,
@@ -97,6 +108,7 @@ class _ExpensesState extends State<Expenses> {
       ),
       duration: const Duration(milliseconds: 300),
     );
+    // Needed so the chart (and the empty state) rebuild after a delete.
     setState(() {});
     ExpenseStorage.saveExpenses(_registeredExpenses);
 
@@ -107,6 +119,8 @@ class _ExpensesState extends State<Expenses> {
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () {
+            // If the list was empty, the AnimatedList is not on screen yet
+            // (listState is null) and will be built with the item included.
             final listState = _listKey.currentState;
             setState(() {
               _registeredExpenses.insert(index, expense);
@@ -119,6 +133,7 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
+  /// Called when a chart bar is tapped: shows that category's total.
   void _showCategoryTotal(ExpenseBucket bucket) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -148,10 +163,15 @@ class _ExpensesState extends State<Expenses> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final width = MediaQuery.sizeOf(context).width;
+    // Responsive layout: chart and list side by side on wide screens
+    // (tablets, landscape), stacked vertically on narrow ones (phones).
     final isWide = width > 600;
+    // Reading the ThemeScope here makes this screen rebuild when the theme changes.
     final preset = ThemeScope.of(context).preset;
+    // "Glass" style = translucent cards on top of a photo background.
     final isGlass = preset.hasPhotoBackground;
 
+    // Pick what to show: loading spinner, empty state, or chart + list.
     Widget mainContent;
     if (_isLoading) {
       mainContent = const Center(

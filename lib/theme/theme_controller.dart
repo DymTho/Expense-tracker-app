@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_theme.dart';
 
+/// Holds the currently selected app theme. It is a ChangeNotifier, so widgets
+/// listening to it rebuild when [selectTheme] is called. The choice is saved
+/// in SharedPreferences and restored on the next launch.
 class ThemeController extends ChangeNotifier {
   static const _storageKey = 'selected_theme';
 
@@ -29,6 +32,8 @@ class ThemeController extends ChangeNotifier {
   }
 }
 
+/// Makes the [ThemeController] available anywhere below it in the widget tree:
+/// `ThemeScope.of(context)`. Widgets that call it rebuild on theme changes.
 class ThemeScope extends InheritedNotifier<ThemeController> {
   const ThemeScope({
     super.key,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// One bar of the chart. [fill] is the height as a fraction (0..1); the bar
+/// animates from 0 to that height whenever it is built or the value changes.
 class ChartBar extends StatelessWidget {
   const ChartBar({super.key, required this.fill, required this.color});
 

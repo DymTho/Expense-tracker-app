@@ -3,6 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 enum AppThemeId { violet, forest, ocean }
 
+/// One selectable theme: an accent color plus an optional photo background.
+/// [scrimColor] and [scrimAlphas] describe the dark gradient laid over the
+/// photo so text stays readable.
 class AppThemePreset {
   const AppThemePreset({
     required this.id,
@@ -60,6 +63,9 @@ const appThemePresets = [
 AppThemePreset presetById(AppThemeId id) =>
     appThemePresets.firstWhere((preset) => preset.id == id);
 
+/// Builds the full Material 3 [ThemeData] (colors, fonts, buttons, cards,
+/// inputs, dialogs) from one seed color, so the whole app stays consistent.
+/// With [translucentSurfaces] cards become see-through "glass" for photo themes.
 ThemeData buildAppTheme(
   Color seedColor,
   Brightness brightness, {

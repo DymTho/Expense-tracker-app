@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../models/expense.dart';
 import 'chart_bar.dart';
 
+/// Bar chart of spending per category. Each bar's height is its category's
+/// total relative to the biggest category. Tapping a bar calls [onBucketTap].
 class Chart extends StatelessWidget {
   const Chart({
     super.key,
@@ -15,6 +17,7 @@ class Chart extends StatelessWidget {
   final void Function(ExpenseBucket bucket)? onBucketTap;
   final bool isGlass;
 
+  /// One bucket per category, in enum order (also when a category is empty).
   List<ExpenseBucket> get buckets {
     return [
       for (final category in Category.values)
@@ -22,6 +25,8 @@ class Chart extends StatelessWidget {
     ];
   }
 
+  /// The largest category total, used to scale the bars to 0..1.
+  /// Returns 1 when there are no expenses to avoid dividing by zero.
   double get _maxTotalExpense {
     double max = 0;
     for (final bucket in buckets) {

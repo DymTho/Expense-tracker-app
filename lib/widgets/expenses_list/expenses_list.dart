@@ -19,6 +19,8 @@ class AnimatedExpenseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Without [onDismissed] this is the plain row used while an item is
+    // animating out of the list (it is already deleted at that point).
     final content = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       child: ExpenseItem(expense: expense),
